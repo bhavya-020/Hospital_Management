@@ -1,0 +1,49 @@
+﻿ 
+
+@*
+    For more information on enabling MVC for empty projects, visit
+    https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model IEnumerable<Hospital_Management.Models.PatientModel>
+
+<h2>Patient List</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add New Patient</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Patient Name</th>
+            <th>Age</th>
+            <th>Gender</th>
+            <th>Contact</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.PatientName</td>
+                <td>@p.Age</td>
+                <td>@p.Gender</td>
+                <td>@p.Contact</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@p.PatientId" class="btn btn-warning btn-sm">
+                        Edit
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@p.PatientId"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Are you sure?');">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -6,11 +6,12 @@ using Microsoft.Extensions.Configuration;
 
 namespace Hospital_Management.Controllers
 {
-    public class DoctorController : Controller
+    public class PatientController : Controller
     {
         private readonly string _con;
 
-        public DoctorController(IConfiguration configuration)
+        // ✔ Modern configuration
+        public PatientController(IConfiguration configuration)
         {
             _con = configuration.GetConnectionString("dbcon");
         }
@@ -19,11 +20,11 @@ namespace Hospital_Management.Controllers
         {
             using (var db = new SqlConnection(_con))
             {
-                var doctors = db
-                    .Query<DoctorModel>("SELECT * FROM Doctors")
+                var patients = db
+                    .Query<PatientModel>("SELECT * FROM Patients")
                     .ToList();
 
-                return View(doctors);
+                return View(patients);
             }
         }
 
@@ -34,18 +35,60 @@ namespace Hospital_Management.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(DoctorModel m)
+        public IActionResult Create(PatientModel m)
         {
+
             if (!ModelState.IsValid)
-            {
-                return View(m); // Return form with validation errors
-            }
+                return View(m);
 
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(
-                    @"INSERT INTO Doctors (DoctorName, Specialization, WorkPlace, Experience)
-              VALUES (@DoctorName, @Specialization, @WorkPlace, @Experience)",
+                    @"INSERT INTO Patients
+                      (PatientName, Age, Gender, Contact)
+                      VALUES
+                      (@PatientName, @Age, @Gender, @Contact)",
+                    m
+                );
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Edit(int id)
+        {
+            using (var db = new SqlConnection(_con))
+            {
+                var patient = db.QueryFirstOrDefault<PatientModel>(
+                    "SELECT * FROM Patients WHERE PatientId = @id",
+                    new { id }
+                );
+
+                if (patient == null)
+                {
+                    return NotFound();
+                }
+
+                return View(patient);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(PatientModel m)
+        {
+            if (!ModelState.IsValid)
+                return View(m);
+
+            using (var db = new SqlConnection(_con))
+            {
+                db.Execute(
+                    @"UPDATE Patients SET
+                        PatientName = @PatientName,
+                        Age = @Age,
+                        Gender = @Gender,
+                        Contact = @Contact
+                      WHERE PatientId = @PatientId",
                     m
                 );
             }
@@ -58,56 +101,12 @@ namespace Hospital_Management.Controllers
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(
-                    "DELETE FROM Doctors WHERE DoctorId = @id",
+                    "DELETE FROM Patients WHERE PatientId = @id",
                     new { id }
                 );
             }
 
             return RedirectToAction(nameof(Index));
         }
-
-
-        public IActionResult Edit(int id)
-        {
-            using (var db = new SqlConnection(_con))
-            {
-                var doctor = db.QueryFirstOrDefault<DoctorModel>(
-                    "SELECT * FROM Doctors WHERE DoctorId = @id",
-                    new { id }
-                );
-
-                if (doctor == null)
-                {
-                    return NotFound();
-                }
-
-                return View(doctor);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(DoctorModel m)
-        {
-
-            if (!ModelState.IsValid)
-                return View(m);
-
-            using (var db = new SqlConnection(_con))
-            {
-                db.Execute(
-                    @"UPDATE Doctors SET
-                DoctorName = @DoctorName,
-                Specialization = @Specialization,
-                WorkPlace = @WorkPlace,
-                Experience = @Experience
-              WHERE DoctorId = @DoctorId",
-                    m
-                );
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
     }
 }

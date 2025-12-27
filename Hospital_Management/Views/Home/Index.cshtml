@@ -1,8 +1,52 @@
-﻿@{
+﻿@* @{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div> *@
+
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="display-4">Hospital Management Dashboard</h1>
+        <p class="lead">Quick access to all Doctor and Patient operations</p>
+    </div>
+
+    <div class="row text-center">
+        <!-- Doctor Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow p-4">
+                <h3>Doctor Management</h3>
+                <hr />
+                <a asp-controller="Doctor" asp-action="Create" class="btn btn-success mb-2 w-100">
+                    Add Doctor
+                </a>
+                <a asp-controller="Doctor" asp-action="Index" class="btn btn-primary mb-2 w-100">
+                    View Doctors
+                </a>
+                
+            </div>
+        </div>
+
+        <!-- Patient Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow p-4">
+                <h3>Patient Management</h3>
+                <hr />
+                <a asp-controller="Patient" asp-action="Create" class="btn btn-success mb-2 w-100">
+                    Add Patient
+                </a>
+                <a asp-controller="Patient" asp-action="Index" class="btn btn-primary mb-2 w-100">
+                    View Patients
+                </a>
+                
+            </div>
+        </div>
+    </div>
 </div>
