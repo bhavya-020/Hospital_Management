@@ -2,24 +2,39 @@
 
 <h2>Book Appointment</h2>
 
-@using (Html.BeginForm())
+@using (Html.BeginForm("Create", "Appointment", FormMethod.Post))
 {
-    @Html.DropDownListFor(x=>x.DoctorId,
-    new SelectList(ViewBag.Doctors, "DoctorId", "DoctorName"),
-   "Select Doctor", new { @class = "form-control" })
+    @Html.AntiForgeryToken()
 
-@Html.DropDownListFor(x=>x.PatientId,
-   new SelectList(ViewBag.Patients, "PatientId", "PatientName"),
-   "Select Patient", new { @class = "form-control" })
+    <div class="mb-3">
+        <label class="form-label">Doctor</label>
+        @Html.DropDownListFor(x => x.DoctorId,
+        new SelectList(ViewBag.Doctors ?? new List<DoctorModel>(), "DoctorId", "DoctorName"),
+        "Select Doctor",
+        new { @class = "form-control" })
+    @Html.ValidationMessageFor(x => x.DoctorId, "", new { @class = "text-danger" })
+</div>
 
-<label>Date</label>
-@Html.TextBoxFor(x=>x.AppointmentDate,
-   new { type = "date", @class = "form-control" })
+<div class="mb-3">
+    <label class="form-label">Patient</label>
+    @Html.DropDownListFor(x => x.PatientId,
+        new SelectList(ViewBag.Patients ?? new List<PatientModel>(), "PatientId", "PatientName"),
+        "Select Patient",
+        new { @class = "form-control" })
+    @Html.ValidationMessageFor(x => x.PatientId, "", new { @class = "text-danger" })
+</div>
 
-<label>Time</label>
-@Html.TextBoxFor(x=>x.AppointmentTime,
-   new { type = "time", @class = "form-control" })
+<div class="mb-3">
+    <label class="form-label">Date</label>
+    @Html.TextBoxFor(x => x.AppointmentDate, new { type = "date", @class = "form-control" })
+    @Html.ValidationMessageFor(x => x.AppointmentDate, "", new { @class = "text-danger" })
+</div>
 
-<br />
-<input type="submit" value="Book" class="btn btn-primary" />
+<div class="mb-3">
+    <label class="form-label">Time</label>
+    @Html.TextBoxFor(x => x.AppointmentTime, new { type = "time", @class = "form-control" })
+    @Html.ValidationMessageFor(x => x.AppointmentTime, "", new { @class = "text-danger" })
+</div>
+
+<button type="submit" class="btn btn-primary">Book Appointment</button>
 }

@@ -1,0 +1,52 @@
+﻿@model IEnumerable<AppointmentModel>
+
+@{
+    ViewBag.Title = "Appointments List";
+}
+
+<h2 class="mb-4">Appointments</h2>
+
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-success">Book New Appointment</a>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Doctor</th>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th class="text-center">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="6" class="text-center">No appointments found</td>
+            </tr>
+        }
+        else
+        {
+            int serial = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@serial</td>
+                    <td>@item.DoctorName</td>
+                    <td>@item.PatientName</td>
+                    <td>@item.AppointmentDate.ToString("yyyy-MM-dd")</td>
+                    <td>@item.AppointmentTime.ToString(@"hh\:mm")</td>
+                    <td class="text-center">
+                        <a asp-action="Edit" asp-route-id="@item.AppointmentId" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.AppointmentId" class="btn btn-sm btn-danger"
+                           onclick="return confirm('Are you sure you want to delete this?');">Delete</a>
+                    </td>
+                </tr>
+                serial++;
+            }
+        }
+    </tbody>
+</table>

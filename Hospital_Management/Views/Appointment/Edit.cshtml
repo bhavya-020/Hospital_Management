@@ -1,23 +1,37 @@
-﻿@model AppointmentModel
+﻿@model Hospital_Management.Models.AppointmentModel
 
-@using (Html.BeginForm())
+<h2>Edit Appointment</h2>
+
+@using (Html.BeginForm("Edit", "Appointment", FormMethod.Post))
 {
+    @Html.AntiForgeryToken()
     @Html.HiddenFor(x => x.AppointmentId)
 
-    @Html.DropDownListFor(x=>x.DoctorId,
-    new SelectList(ViewBag.Doctors, "DoctorId", "DoctorName"),
-  new { @class = "form-control" })
+    <div class="mb-3">
+        <label class="form-label">Doctor</label>
+        @Html.DropDownListFor(x => x.DoctorId,
+        new SelectList(ViewBag.Doctors ?? new List<DoctorModel>(), "DoctorId", "DoctorName", Model.DoctorId),
+        "Select Doctor",
+        new { @class = "form-control" })
+</div>
 
-@Html.DropDownListFor(x=>x.PatientId,
-  new SelectList(ViewBag.Patients, "PatientId", "PatientName"),
-  new { @class = "form-control" })
+<div class="mb-3">
+    <label class="form-label">Patient</label>
+    @Html.DropDownListFor(x => x.PatientId,
+        new SelectList(ViewBag.Patients ?? new List<PatientModel>(), "PatientId", "PatientName", Model.PatientId),
+        "Select Patient",
+        new { @class = "form-control" })
+</div>
 
-@Html.TextBoxFor(x=>x.AppointmentDate,
-  new { type = "date", @class = "form-control" })
+<div class="mb-3">
+    <label class="form-label">Date</label>
+    @Html.TextBoxFor(x => x.AppointmentDate, new { type = "date", @class = "form-control" })
+</div>
 
-@Html.TextBoxFor(x=>x.AppointmentTime,
-  new { type = "time", @class = "form-control" })
+<div class="mb-3">
+    <label class="form-label">Time</label>
+    @Html.TextBoxFor(x => x.AppointmentTime, new { type = "time", @class = "form-control" })
+</div>
 
-<br />
-<input type="submit" value="Update" class="btn btn-warning" />
+<button type="submit" class="btn btn-warning">Update</button>
 }
