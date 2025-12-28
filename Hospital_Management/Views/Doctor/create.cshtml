@@ -1,0 +1,18 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model DoctorModel
+<h2>Add Doctor</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.TextBoxFor(x => x.DoctorName, new { @class = "form-control", placeholder = "Doctor Name" })
+    @Html.TextBoxFor(x => x.Specialization, new { @class = "form-control", placeholder = "Specialization" })
+    @Html.TextBoxFor(x => x.WorkPlace, new { @class = "form-control", placeholder = "Workplace" })
+    @Html.TextBoxFor(x => x.Experience, new { @class = "form-control", placeholder = "Experience" })
+    <br />
+    <input type="submit" value="Save" class="btn btn-success" />
+}
