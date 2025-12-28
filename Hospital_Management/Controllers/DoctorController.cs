@@ -33,15 +33,19 @@ namespace Hospital_Management.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(DoctorModel m)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(m); // Return form with validation errors
+            }
+
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(
-                    @"INSERT INTO Doctors
-                      (DoctorName, Specialization, WorkPlace, Experience)
-                      VALUES
-                      (@DoctorName, @Specialization, @WorkPlace, @Experience)",
+                    @"INSERT INTO Doctors (DoctorName, Specialization, WorkPlace, Experience)
+              VALUES (@DoctorName, @Specialization, @WorkPlace, @Experience)",
                     m
                 );
             }
@@ -85,6 +89,10 @@ namespace Hospital_Management.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(DoctorModel m)
         {
+
+            if (!ModelState.IsValid)
+                return View(m);
+
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(

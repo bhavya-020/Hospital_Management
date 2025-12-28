@@ -3,3 +3,45 @@
 *@
 @{
 }
+
+
+@model IEnumerable<DoctorModel>
+
+<h2>Doctor List</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add New Doctor</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Doctor Name</th>
+            <th>Specialization</th>
+            <th>Work Place</th>
+            <th>Experience</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var d in Model)
+        {
+            <tr>
+                <td>@d.DoctorName</td>
+                <td>@d.Specialization</td>
+                <td>@d.WorkPlace</td>
+                <td>@d.Experience</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@d.DoctorId" class="btn btn-warning btn-sm">
+                        Edit
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@d.DoctorId"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Are you sure?');">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
