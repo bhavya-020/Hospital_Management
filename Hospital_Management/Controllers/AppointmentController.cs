@@ -3,6 +3,7 @@ using Hospital_Management.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 
 namespace Hospital_Management.Controllers
 {
@@ -20,16 +21,13 @@ namespace Hospital_Management.Controllers
         {
             using (var db = new SqlConnection(_con))
             {
-                var appointments = db.Query<AppointmentModel>(@"
-                   SELECT A.AppointmentId,
-                          D.DoctorName,
-                          P.PatientName,
-                          A.AppointmentDate,
-                          A.AppointmentTime
-                   FROM Appointments A
-                   JOIN Doctors D ON A.DoctorId = D.DoctorId
-                   JOIN Patients P ON A.PatientId = P.PatientId
-                ").ToList();
+                var appointments = db
+                    .Query<AppointmentModel>("sp_Appointment_GetAll",
+                   commandType: CommandType.StoredProcedure
+                   )
+                   .ToList();
+
+
 
                 return View(appointments);
             }
@@ -65,10 +63,9 @@ namespace Hospital_Management.Controllers
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(@"
-                   INSERT INTO Appointments
-                   (DoctorId, PatientId, AppointmentDate, AppointmentTime)
-                   VALUES (@DoctorId, @PatientId, @AppointmentDate, @AppointmentTime)
-                ", m);
+                   sp_Appointment_Insert", m,
+                   commandType: CommandType.StoredProcedure
+                   );
             }
 
             return RedirectToAction(nameof(Index));
@@ -110,14 +107,10 @@ namespace Hospital_Management.Controllers
 
             using (var db = new SqlConnection(_con))
             {
-                db.Execute(@"
-                   UPDATE Appointments SET
-                   DoctorId = @DoctorId,
-                   PatientId = @PatientId,
-                   AppointmentDate = @AppointmentDate,
-                   AppointmentTime = @AppointmentTime
-                   WHERE AppointmentId = @AppointmentId
-                ", m);
+                db.Execute(
+                    "sp_Appointment_Update",
+                    m
+                   , commandType: CommandType.StoredProcedure);
             }
 
             return RedirectToAction(nameof(Index));
@@ -128,7 +121,10 @@ namespace Hospital_Management.Controllers
         {
             using (var db = new SqlConnection(_con))
             {
-                db.Execute("DELETE FROM Appointments WHERE AppointmentId = @id", new { id });
+                db.Execute(
+                    "sp_Appointment_Delete", 
+                    new { id },
+                    commandType: CommandType.StoredProcedure);
             }
             return RedirectToAction(nameof(Index));
         }
