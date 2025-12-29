@@ -3,6 +3,7 @@ using Hospital_Management.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 
 namespace Hospital_Management.Controllers
 {
@@ -21,7 +22,9 @@ namespace Hospital_Management.Controllers
             using (var db = new SqlConnection(_con))
             {
                 var patients = db
-                    .Query<PatientModel>("SELECT * FROM Patients")
+                    .Query<PatientModel>("sp_Patient_GetAll" ,
+                    commandType: CommandType.StoredProcedure
+                    )
                     .ToList();
 
                 return View(patients);
@@ -44,11 +47,9 @@ namespace Hospital_Management.Controllers
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(
-                    @"INSERT INTO Patients
-                      (PatientName, Age, Gender, Contact)
-                      VALUES
-                      (@PatientName, @Age, @Gender, @Contact)",
-                    m
+                    @"sp_Patient_Insert",
+                    m,
+                    commandType: CommandType.StoredProcedure
                 );
             }
 
@@ -83,13 +84,9 @@ namespace Hospital_Management.Controllers
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(
-                    @"UPDATE Patients SET
-                        PatientName = @PatientName,
-                        Age = @Age,
-                        Gender = @Gender,
-                        Contact = @Contact
-                      WHERE PatientId = @PatientId",
-                    m
+                    "sp_Patient_Update",
+                    m,
+                    commandType: CommandType.StoredProcedure
                 );
             }
 
@@ -101,8 +98,9 @@ namespace Hospital_Management.Controllers
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(
-                    "DELETE FROM Patients WHERE PatientId = @id",
-                    new { id }
+                    "sp_Patient_Delete",
+                    new { id },
+                    commandType: CommandType.StoredProcedure
                 );
             }
 

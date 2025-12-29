@@ -3,6 +3,8 @@ using Hospital_Management.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System.Data;
+
 
 namespace Hospital_Management.Controllers
 {
@@ -20,7 +22,9 @@ namespace Hospital_Management.Controllers
             using (var db = new SqlConnection(_con))
             {
                 var doctors = db
-                    .Query<DoctorModel>("SELECT * FROM Doctors")
+                    .Query<DoctorModel>("sp_Doctor_GetAll",
+                    commandType: CommandType.StoredProcedure
+                    )
                     .ToList();
 
                 return View(doctors);
@@ -44,9 +48,9 @@ namespace Hospital_Management.Controllers
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(
-                    @"INSERT INTO Doctors (DoctorName, Specialization, WorkPlace, Experience)
-              VALUES (@DoctorName, @Specialization, @WorkPlace, @Experience)",
-                    m
+                    @"sp_Doctor_Insert",
+                    m,
+                    commandType: CommandType.StoredProcedure
                 );
             }
 
@@ -58,8 +62,9 @@ namespace Hospital_Management.Controllers
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(
-                    "DELETE FROM Doctors WHERE DoctorId = @id",
-                    new { id }
+                    "sp_Doctor_Delete",
+                    new { id },
+                    commandType: CommandType.StoredProcedure
                 );
             }
 
@@ -96,14 +101,9 @@ namespace Hospital_Management.Controllers
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(
-                    @"UPDATE Doctors SET
-                DoctorName = @DoctorName,
-                Specialization = @Specialization,
-                WorkPlace = @WorkPlace,
-                Experience = @Experience
-              WHERE DoctorId = @DoctorId",
+                    "sp_Doctor_Update",
                     m
-                );
+                , commandType: CommandType.StoredProcedure);
             }
 
             return RedirectToAction(nameof(Index));
