@@ -19,6 +19,7 @@ namespace Hospital_Management.Models
 
         [Required(ErrorMessage = "Contact is required")]
         [Phone(ErrorMessage = "Invalid phone number")]
+        [StringLength(10, ErrorMessage = "Number must be between 0 and 10")]
         public string Contact { get; set; }
     }
 
