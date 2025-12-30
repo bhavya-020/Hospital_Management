@@ -15,10 +15,8 @@ namespace Hospital_Management.Models
 
         [Required]
         [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime AppointmentDate { get; set; }
-
-        [Required]
-        [DataType(DataType.Time)]
         public TimeSpan AppointmentTime { get; set; }
 
         // For Index (JOIN result)

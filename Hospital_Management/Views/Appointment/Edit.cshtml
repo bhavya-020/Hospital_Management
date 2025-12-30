@@ -25,7 +25,9 @@
 
 <div class="mb-3">
     <label class="form-label">Date</label>
-    @Html.TextBoxFor(x => x.AppointmentDate, new { type = "date", @class = "form-control" })
+    @Html.TextBox("AppointmentDate",
+        Model.AppointmentDate.ToString("yyyy-MM-dd"),
+        new { type = "date", @class = "form-control" })
 </div>
 
 <div class="mb-3">

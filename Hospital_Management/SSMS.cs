@@ -230,7 +230,8 @@
 //WHERE AppointmentId=@AppointmentId
 
 
-//sp_Appointment_Insert
+////sp_Appointment_Insert
+
 //Alter PROC sp_Appointment_Insert
 // @DoctorId INT,
 // @PatientId INT,
@@ -254,7 +255,6 @@
 // @PatientName NVARCHAR(100)
 //AS
 //UPDATE Appointments SET
- 
 // DoctorId=@DoctorId,
 // PatientId = @PatientId,
 // AppointmentDate = @AppointmentDate,
