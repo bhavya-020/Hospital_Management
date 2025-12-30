@@ -149,3 +149,114 @@
 //AS
 //DELETE FROM Appointments WHERE AppointmentId=@AppointmentId
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/////SSSSSSSSPPPPPPPPP
+//using Microsoft.AspNetCore.Http.HttpResults;
+//using System.Diagnostics.Metrics;
+
+/////SSSSSSSSPPPPPPPPP
+//ALTER PROC sp_Doctor_Insert
+//@DoctorId int,
+// @DoctorName NVARCHAR(100),
+// @Specialization NVARCHAR(100),
+// @WorkPlace NVARCHAR(100),
+// @Experience INT
+//AS
+//INSERT INTO Doctors
+//VALUES (@DoctorName, @Specialization, @WorkPlace, @Experience)
+
+
+
+//select * From doctors
+
+//sp_Doctor_Insert 'Test Doctor','General','Delhi',4;
+//sp_Appointment_Insert 11,6 , '2025-12-22' , '02:56:22';
+
+//EXEC sp_Appointment_Insert
+//    'DR. Ashish',
+//    'Patient22',
+//    '2025-12-22',
+//    '02:56:22';
+
+//////////////////////////////////////////////////////
+//ALTER PROC sp_Patient_Insert
+// @PatientId int,
+// @PatientName NVARCHAR(100),
+// @Age INT,
+// @Gender NVARCHAR(10),
+// @Contact NVARCHAR(15)
+//AS
+//INSERT INTO Patients VALUES(@PatientName, @Age, @Gender, @Contact);
+
+
+
+//CREATE PROC sp_Doctor_Delete
+// @DoctorId INT
+//AS
+//DELETE FROM Doctors WHERE DoctorId=@DoctorId
+
+
+/////////////////////////////////////////////////
+
+//ALTER PROC sp_Appointment_Update
+// @AppointmentId INT,
+// @DoctorId INT,
+// @PatientId INT,
+// @AppointmentDate DATE,
+// @AppointmentTime TIME
+//AS
+//UPDATE Appointments SET
+// DoctorId=@DoctorId,
+// PatientId = @PatientId,
+// AppointmentDate = @AppointmentDate,
+// AppointmentTime = @AppointmentTime
+//WHERE AppointmentId=@AppointmentId
+
+
+//sp_Appointment_Insert
+//Alter PROC sp_Appointment_Insert
+// @DoctorId INT,
+// @PatientId INT,
+// @AppointmentDate DATE,
+// @AppointmentTime TIME,
+// @AppointmentId int,
+// @DoctorName NVARCHAR(100),
+// @PatientName NVARCHAR(100)
+//AS
+//INSERT INTO Appointments
+//VALUES(@DoctorId, @PatientId, @AppointmentDate, @AppointmentTime);
+
+
+//alter PROC sp_Appointment_Update
+// @DoctorId INT,
+// @PatientId INT,
+// @AppointmentDate DATE,
+// @AppointmentTime TIME,
+// @AppointmentId INT,
+// @DoctorName NVARCHAR(100),
+// @PatientName NVARCHAR(100)
+//AS
+//UPDATE Appointments SET
+ 
+// DoctorId=@DoctorId,
+// PatientId = @PatientId,
+// AppointmentDate = @AppointmentDate,
+// AppointmentTime = @AppointmentTime
+//WHERE AppointmentId=@AppointmentId

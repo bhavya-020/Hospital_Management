@@ -48,7 +48,7 @@ namespace Hospital_Management.Controllers
             using (var db = new SqlConnection(_con))
             {
                 db.Execute(
-                    @"sp_Doctor_Insert",
+                    "sp_Doctor_Insert",
                     m,
                     commandType: CommandType.StoredProcedure
                 );
@@ -63,7 +63,7 @@ namespace Hospital_Management.Controllers
             {
                 db.Execute(
                     "sp_Doctor_Delete",
-                    new { id },
+                    new { DoctorId = id },
                     commandType: CommandType.StoredProcedure
                 );
             }

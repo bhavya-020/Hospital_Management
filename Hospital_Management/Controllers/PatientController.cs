@@ -99,7 +99,7 @@ namespace Hospital_Management.Controllers
             {
                 db.Execute(
                     "sp_Patient_Delete",
-                    new { id },
+                    new { PatientId = id },
                     commandType: CommandType.StoredProcedure
                 );
             }

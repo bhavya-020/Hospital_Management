@@ -62,8 +62,7 @@ namespace Hospital_Management.Controllers
 
             using (var db = new SqlConnection(_con))
             {
-                db.Execute(@"
-                   sp_Appointment_Insert", m,
+                db.Execute(@"sp_Appointment_Insert", m,
                    commandType: CommandType.StoredProcedure
                    );
             }
@@ -121,9 +120,8 @@ namespace Hospital_Management.Controllers
         {
             using (var db = new SqlConnection(_con))
             {
-                db.Execute(
-                    "sp_Appointment_Delete", 
-                    new { id },
+                db.Execute(@"sp_Appointment_Delete", 
+                    new { AppointmentId = id },
                     commandType: CommandType.StoredProcedure);
             }
             return RedirectToAction(nameof(Index));
