@@ -5,6 +5,9 @@
 @using (Html.BeginForm("Create", "Appointment", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true , "", new { @class = "alert alert-danger" })
+
+
 
     <div class="mb-3">
         <label class="form-label">Doctor</label>
@@ -35,6 +38,16 @@
         @Html.TextBoxFor(x => x.AppointmentTime, new { type = "time", @class = "form-control" })
         @Html.ValidationMessageFor(x => x.AppointmentTime, "", new { @class = "text-danger" })
     </div>
-
+@if (!ViewData.ModelState.IsValid)
+    {
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Appointment Conflict',
+                text: '@Html.Raw(string.Join(" ", ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)))',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    }
     <button type="submit" class="btn btn-primary">Book Appointment</button>
 }

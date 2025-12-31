@@ -20,7 +20,9 @@ namespace Hospital_Management.Models
         public TimeSpan AppointmentTime { get; set; }
 
         // For Index (JOIN result)
-        public string DoctorName { get; set; }
-        public string PatientName { get; set; }
+
+      
+        public string? DoctorName { get; set; }
+        public string? PatientName { get; set; }
     }
 }

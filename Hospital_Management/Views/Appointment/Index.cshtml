@@ -1,52 +1,128 @@
 ﻿@model IEnumerable<AppointmentModel>
 
-@{
-    ViewBag.Title = "Appointments List";
+<h2 class="mb-3">Appointment List</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">
+    + Book Appointment
+</a>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No appointments found.
+    </div>
 }
+else
+{
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-4">
+            <input type="text"
+                   name="search"
+                   value="@ViewBag.Search"
+                   class="form-control"
+                   placeholder="Search Doctor or Patient" />
+        </div>
 
-<h2 class="mb-4">Appointments</h2>
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All</option>
+                <option value="today" selected="@(ViewBag.Status == "today")">Today</option>
+                <option value="upcoming" selected="@(ViewBag.Status == "upcoming")">Upcoming</option>
+                <option value="completed" selected="@(ViewBag.Status == "completed")">Completed</option>
+            </select>
+        </div>
 
-<div class="mb-3">
-    <a asp-action="Create" class="btn btn-success">Book New Appointment</a>
-</div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Filter</button>
+        </div>
+    </form>
 
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>#</th>
-            <th>Doctor</th>
-            <th>Patient</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th class="text-center">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (!Model.Any())
-        {
+    <table class="table table-bordered table-hover align-middle text-center">
+        <thead class="table-dark">
             <tr>
-                <td colspan="6" class="text-center">No appointments found</td>
+                <th>#</th>
+                <th>Doctor</th>
+                <th>Patient</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Actions</th>
             </tr>
-        }
-        else
-        {
-            int serial = 1;
-            foreach (var item in Model)
+        </thead>
+
+        <tbody>
+            @{
+                int count = 1;
+                var today = DateTime.Today;
+                var tomorrow = DateTime.Today.AddDays(1);
+            }
+
+            @foreach (var item in Model)
             {
-                <tr>
-                    <td>@serial</td>
-                    <td>@item.DoctorName</td>
+                string rowClass = "";
+                string status = "";
+
+                if (item.AppointmentDate.Date < today)
+                {
+                    rowClass = "na";   // past = gray
+                    status = "Completed";
+                }
+                else if (item.AppointmentDate.Date == today)
+                {
+                    rowClass = "na";     // today = yellow
+                    status = "Today";
+                }
+                else if (item.AppointmentDate.Date == tomorrow)
+                {
+                    rowClass = "na";        // tomorrow = blue
+                    status = "Tomorrow";
+                }
+                else
+                {
+                    rowClass = "na";     // future = green
+                    status = "Upcoming";
+                }
+
+                <tr class="@rowClass">
+                    <td>@count</td>
+                    <td class="fw-bold">@item.DoctorName</td>
                     <td>@item.PatientName</td>
-                    <td>@item.AppointmentDate.ToString("yyyy-MM-dd")</td>
+                    <td>@item.AppointmentDate.ToString("dd MMM yyyy")</td>
                     <td>@item.AppointmentTime.ToString(@"hh\:mm")</td>
-                    <td class="text-center">
-                        <a asp-action="Edit" asp-route-id="@item.AppointmentId" class="btn btn-sm btn-warning">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@item.AppointmentId" class="btn btn-sm btn-danger"
-                           onclick="return confirm('Are you sure you want to delete this?');">Delete</a>
+                    <td>
+                        <span class="badge bg-dark">@status</span>
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.AppointmentId"
+                           class="btn btn-sm btn-warning me-1">
+                            Edit
+                        </a>
+
+                        <a asp-action="Delete" asp-route-id="@item.AppointmentId"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Are you sure?');">
+                            Delete
+                        </a>
                     </td>
                 </tr>
-                serial++;
+
+                count++;
             }
+
+        </tbody>
+    </table>
+    <nav>
+    <ul class="pagination justify-content-center">
+        @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                <a class="page-link"
+                   href="?page=@i&status=@ViewBag.Status&search=@ViewBag.Search">
+                    @i
+                </a>
+            </li>
         }
-    </tbody>
-</table>
+    </ul>
+</nav>
+
+}

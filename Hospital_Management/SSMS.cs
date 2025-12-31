@@ -260,3 +260,136 @@
 // AppointmentDate = @AppointmentDate,
 // AppointmentTime = @AppointmentTime
 //WHERE AppointmentId=@AppointmentId
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+
+
+
+
+/////SSSSSSSSPPPPPPPPP
+/////
+//using System.Collections.Generic;
+//using System.Numerics;
+
+/////SSSSSSSSPPPPPPPPP
+/////
+
+
+///SSSSSSSSPPPPPPPPP
+///
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.VisualBasic;
+using System.Numerics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+///SSSSSSSSPPPPPPPPP
+///
+//CREATE PROCEDURE sp_Appointment_Insert_With_Check
+//(
+//    @DoctorId INT,
+//    @PatientId INT,
+//    @AppointmentDate DATE,
+//    @AppointmentTime TIME,
+//    @Result INT OUTPUT
+//)
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+
+//IF EXISTS(
+//        SELECT 1
+//        FROM Appointments
+//        WHERE DoctorId = @DoctorId
+//          AND AppointmentDate = @AppointmentDate
+//          AND AppointmentTime = @AppointmentTime
+//    )
+//    BEGIN
+//        SET @Result = -1; --Doctor busy
+//        RETURN;
+//END
+
+
+//IF EXISTS (
+//        SELECT 1
+//        FROM Appointments
+//        WHERE PatientId = @PatientId
+//          AND AppointmentDate = @AppointmentDate
+//          AND AppointmentTime = @AppointmentTime
+//    )
+//    BEGIN
+//        SET @Result = -2; --Patient busy
+//        RETURN;
+//END
+
+//-- ✅ Insert appointment
+//    INSERT INTO Appointments
+//    (DoctorId, PatientId, AppointmentDate, AppointmentTime)
+//    VALUES
+//    (@DoctorId, @PatientId, @AppointmentDate, @AppointmentTime);
+
+//SET @Result = 1; --Success
+//END
+
+
+
+
+
+
+//CREATE PROCEDURE sp_Appointment_Update_With_Check
+//(
+//    @AppointmentId INT,
+//    @DoctorId INT,
+//    @PatientId INT,
+//    @AppointmentDate DATE,
+//    @AppointmentTime TIME,
+//    @Result INT OUTPUT
+//)
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//--Doctor busy check(ignore current appointment)
+//    IF EXISTS(
+//        SELECT 1 FROM Appointments
+//        WHERE DoctorId = @DoctorId
+//          AND AppointmentDate = @AppointmentDate
+//          AND AppointmentTime = @AppointmentTime
+//          AND AppointmentId <> @AppointmentId
+//    )
+//    BEGIN
+//        SET @Result = -1; --Doctor busy
+//        RETURN;
+//END
+
+//-- Patient busy check (ignore current appointment)
+//    IF EXISTS (
+//        SELECT 1 FROM Appointments
+//        WHERE PatientId = @PatientId
+//          AND AppointmentDate = @AppointmentDate
+//          AND AppointmentTime = @AppointmentTime
+//          AND AppointmentId <> @AppointmentId
+//    )
+//    BEGIN
+//        SET @Result = -2; --Patient busy
+//        RETURN;
+//END
+
+//-- Update
+//UPDATE Appointments
+//    SET
+//        DoctorId = @DoctorId,
+//    PatientId = @PatientId,
+//    AppointmentDate = @AppointmentDate,
+//    AppointmentTime = @AppointmentTime
+//    WHERE AppointmentId = @AppointmentId;
+
+//SET @Result = 1; --Success
+//END
