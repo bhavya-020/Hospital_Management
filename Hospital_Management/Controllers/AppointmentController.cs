@@ -17,7 +17,7 @@ namespace Hospital_Management.Controllers
         }
 
         // INDEX: List all appointments
-
+ 
         public IActionResult Index(string status, string search, int page = 1)
         {
             int pageSize = 5;
