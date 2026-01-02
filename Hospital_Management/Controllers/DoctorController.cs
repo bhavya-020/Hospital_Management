@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Hospital_Management.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
@@ -33,7 +34,12 @@ namespace Hospital_Management.Controllers
 
         public IActionResult Create()
         {
-            return View();
+
+            var model = new DoctorModel
+            {
+                SpecializationList = GetSpecializations()
+            };
+            return View(model);
         }
 
         [HttpPost]
@@ -42,19 +48,64 @@ namespace Hospital_Management.Controllers
         {
             if (!ModelState.IsValid)
             {
+                    m.SpecializationList = GetSpecializations(); // VERY IMPORTANT
+
                 return View(m); // Return form with validation errors
             }
 
-            using (var db = new SqlConnection(_con))
-            {
-                db.Execute(
-                    "sp_Doctor_Insert",
-                    m,
-                    commandType: CommandType.StoredProcedure
-                );
-            }
+            //if (m.Specialization == "Other")
+            //{
+            //    if (string.IsNullOrWhiteSpace(m.OtherSpecialization))
+            //    {
+            //        ModelState.AddModelError("OtherSpecialization", "Please enter specialization");
+            //        m.SpecializationList = GetSpecializations();
+            //        return View(m);
+            //    }
 
-            return RedirectToAction(nameof(Index));
+            //    m.Specialization = m.OtherSpecialization;
+            //}
+
+            try
+            {
+                using (var db = new SqlConnection(_con))
+                {
+                    var param = new DynamicParameters();
+                    param.Add("@DoctorName", m.DoctorName);
+                    param.Add("@Specialization", m.Specialization);
+                    param.Add("@WorkPlace", m.WorkPlace);
+                    param.Add("@Experience", m.Experience);
+
+                    db.Execute(
+                        "sp_Doctor_Insert",
+                        param,
+                        commandType: CommandType.StoredProcedure
+                    );
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                m.SpecializationList = GetSpecializations();
+
+                return View(m);
+            }
+        }
+
+
+        private List<SelectListItem> GetSpecializations()
+        {
+            return new List<SelectListItem>
+    {
+        new SelectListItem { Text = "Cardiologist", Value = "Cardiologist" },
+        new SelectListItem { Text = "Dermatologist", Value = "Dermatologist" },
+        new SelectListItem { Text = "Neurologist", Value = "Neurologist" },
+        new SelectListItem { Text = "Orthopedic", Value = "Orthopedic" },
+        new SelectListItem { Text = "Pediatrician", Value = "Pediatrician" },
+        new SelectListItem { Text = "Other", Value = "Other" }
+
+    };
         }
 
         public IActionResult Delete(int id)
@@ -85,6 +136,7 @@ namespace Hospital_Management.Controllers
                 {
                     return NotFound();
                 }
+                doctor.SpecializationList = GetSpecializations();
 
                 return View(doctor);
             }
@@ -96,18 +148,52 @@ namespace Hospital_Management.Controllers
         {
 
             if (!ModelState.IsValid)
-                return View(m);
-
-            using (var db = new SqlConnection(_con))
             {
-                db.Execute(
-                    "sp_Doctor_Update",
-                    m
-                , commandType: CommandType.StoredProcedure);
+                m.SpecializationList = GetSpecializations();
+                return View(m);
             }
 
-            return RedirectToAction(nameof(Index));
-        }
 
+            //if (m.Specialization == "Other")
+            //{
+            //    if (string.IsNullOrWhiteSpace(m.OtherSpecialization))
+            //    {
+            //        ModelState.AddModelError("OtherSpecialization", "Please enter specialization");
+            //        m.SpecializationList = GetSpecializations();
+            //        return View(m);
+            //    }
+
+            //    m.Specialization = m.OtherSpecialization;
+            //}
+
+
+            try
+            {
+                using var db = new SqlConnection(_con);
+
+                var param = new DynamicParameters();
+                param.Add("@DoctorId", m.DoctorId);
+                param.Add("@DoctorName", m.DoctorName);
+                param.Add("@Specialization", m.Specialization);
+                param.Add("@WorkPlace", m.WorkPlace);
+                param.Add("@Experience", m.Experience);
+
+                db.Execute(
+                    "sp_Doctor_Update",
+                    param,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                m.SpecializationList = GetSpecializations();
+
+                return View(m);
+            }
+
+        }
     }
 }

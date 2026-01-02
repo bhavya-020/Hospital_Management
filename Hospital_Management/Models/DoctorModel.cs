@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace Hospital_Management.Models
 {
@@ -16,8 +17,11 @@ namespace Hospital_Management.Models
         [Required(ErrorMessage = "Specialization is required")]
         [StringLength(30, ErrorMessage = "Specialization cannot exceed 30 characters")]
         [RegularExpression(@"^[A-Za-z ]+$", ErrorMessage = "Doctor Name must contain only alphabets")]
-
         public string Specialization { get; set; }
+
+
+        //[RegularExpression(@"^[A-Za-z\s]+$", ErrorMessage = "Only alphabets allowed")]
+        //public string? OtherSpecialization { get; set; }
 
 
         [Required(ErrorMessage = "Workplace is required")]
@@ -28,7 +32,9 @@ namespace Hospital_Management.Models
 
 
         [Required(ErrorMessage = "Experience is required")]
-        [Range(0, 60, ErrorMessage = "Experience must be between 0 and 60 years")]
+        [Range(0, 70, ErrorMessage = "Experience must be between 0 and 70 years")]
         public int Experience { get; set; }
+        public List<SelectListItem>? SpecializationList { get; set; }
+
     }
 }
