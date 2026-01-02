@@ -393,3 +393,89 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 //SET @Result = 1; --Success
 //END
+
+
+
+
+/////////////////////////////////////////////
+
+
+
+//CREATE PROCEDURE sp_Appointment_GetById
+//(
+//    @AppointmentId INT
+//)
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//SELECT
+//        A.AppointmentId,
+//        A.DoctorId,
+//        D.DoctorName,
+//        A.PatientId,
+//        P.PatientName,
+//        A.AppointmentDate,
+//        A.AppointmentTime
+//    FROM Appointments A
+//    INNER JOIN Doctors D ON A.DoctorId = D.DoctorId
+//    INNER JOIN Patients P ON A.PatientId = P.PatientId
+//    WHERE A.AppointmentId = @AppointmentId;
+//END
+
+
+///////////////////////////////////////////
+
+
+//CREATE PROCEDURE sp_Appointment_GetAll_Filtered
+//    @Search VARCHAR(100) = NULL,
+//    @Status  VARCHAR(20)  = NULL,
+//    @Page    INT,
+//    @PageSize INT
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//DECLARE @Today DATE = CAST(GETDATE() AS DATE);
+
+//; WITH Filtered AS (
+//        SELECT
+//            a.AppointmentId,
+//        a.DoctorId,
+//        d.DoctorName,
+//        a.PatientId,
+//        p.PatientName,
+//        a.AppointmentDate,
+//        a.AppointmentTime
+//        FROM Appointments a
+//        INNER JOIN Doctors d ON a.DoctorId = d.DoctorId
+//        INNER JOIN Patients p ON a.PatientId = p.PatientId
+//        WHERE
+//            (@Search      IS NULL
+//             OR d.DoctorName LIKE '%' + @Search + '%'
+//             OR p.PatientName LIKE '%' + @Search + '%')
+//          AND (
+//            @Status IS NULL
+//            OR (@Status = 'today'     AND a.AppointmentDate = @Today)
+//            OR (@Status = 'upcoming'  AND a.AppointmentDate >  @Today)
+//            OR (@Status = 'completed' AND a.AppointmentDate <  @Today)
+//          )
+//    ),
+//Paged AS (
+//        SELECT *,
+//           ROW_NUMBER() OVER (ORDER BY AppointmentDate, AppointmentTime) AS RowNum
+//        FROM Filtered
+//    )
+//    SELECT
+//          AppointmentId,
+//      DoctorId,
+//      DoctorName,
+//      PatientId,
+//      PatientName,
+//      AppointmentDate,
+//      AppointmentTime
+//    FROM Paged
+//    WHERE RowNum BETWEEN (@Page - 1) * @PageSize + 1 AND @Page * @PageSize;
+
+//SELECT COUNT(*) AS TotalRecords FROM Filtered;
+//END;
