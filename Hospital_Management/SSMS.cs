@@ -166,11 +166,6 @@
 
 
 
-
-/////SSSSSSSSPPPPPPPPP
-//using Microsoft.AspNetCore.Http.HttpResults;
-//using System.Diagnostics.Metrics;
-
 /////SSSSSSSSPPPPPPPPP
 //ALTER PROC sp_Doctor_Insert
 //@DoctorId int,
@@ -274,23 +269,7 @@
 
 
 /////SSSSSSSSPPPPPPPPP
-/////
-//using System.Collections.Generic;
-//using System.Numerics;
 
-/////SSSSSSSSPPPPPPPPP
-/////
-
-
-///SSSSSSSSPPPPPPPPP
-///
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.VisualBasic;
-using System.Numerics;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-///SSSSSSSSPPPPPPPPP
-///
 //CREATE PROCEDURE sp_Appointment_Insert_With_Check
 //(
 //    @DoctorId INT,

@@ -17,9 +17,23 @@
     </div>
 
     <div class="form-group">
-        @Html.TextBoxFor(x => x.Specialization, new { @class = "form-control", placeholder = "Specialization" })
-        @Html.ValidationMessageFor(x => x.Specialization, "", new { @class = "text-danger" })
-    </div>
+        @Html.LabelFor(x => x.Specialization)
+        @Html.DropDownListFor(
+        x => x.Specialization,
+        new List<SelectListItem>
+        {
+        new SelectListItem { Text="Cardiologist", Value="Cardiologist" },
+        new SelectListItem { Text="Dermatologist", Value="Dermatologist" },
+        new SelectListItem { Text="Neurologist", Value="Neurologist" },
+        new SelectListItem { Text="Orthopedic", Value="Orthopedic" },
+        new SelectListItem { Text="Other", Value="Other" }
+        },
+        "-- Select Specialization --",
+        new { @class = "form-control" }
+        )
+    @Html.ValidationMessageFor(x => x.Specialization)
+</div>
+
 
     <div class="form-group">
         @Html.TextBoxFor(x => x.WorkPlace, new { @class = "form-control", placeholder = "Workplace" })

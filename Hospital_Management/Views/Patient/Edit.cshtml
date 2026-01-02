@@ -23,10 +23,16 @@
 </div>
 
 <div class="form-group">
-    @Html.TextBoxFor(x => x.Gender,
-        new { @class = "form-control", placeholder = "Gender" })
-    @Html.ValidationMessageFor(x => x.Gender, "", new { @class = "text-danger" })
+    <label>Gender</label><br />
+
+    @Html.RadioButtonFor(m => m.Gender, "Male") Male
+    @Html.RadioButtonFor(m => m.Gender, "Female") Female
+    @Html.RadioButtonFor(m => m.Gender, "Other") Other
+
+    <br />
+    @Html.ValidationMessageFor(m => m.Gender)
 </div>
+
 
 <div class="form-group">
     @Html.TextBoxFor(x => x.Contact,
