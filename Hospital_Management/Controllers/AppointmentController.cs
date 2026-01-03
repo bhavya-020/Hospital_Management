@@ -17,50 +17,62 @@ namespace Hospital_Management.Controllers
         }
 
         // ===================== INDEX =====================
-        public IActionResult Index(string status, string search, int page = 1)
+        public IActionResult Index(
+     string search,
+     int? doctorId,
+     int? patientId,
+     DateTime? fromDate,
+     DateTime? toDate,
+     string status,
+     int page = 1)
         {
-            int pageSize = 5;
-
+            int pageSize = 10;
             using var db = new SqlConnection(_con);
 
-            var data = db.Query<AppointmentModel>(
-                "sp_Appointment_GetAll",
+            // Dropdowns
+            ViewBag.Doctors = db.Query<DoctorModel>(
+     "sp_Doctor_GetAll",
+     commandType: CommandType.StoredProcedure
+ ).ToList();
+
+            ViewBag.Patients = db.Query<PatientModel>(
+                "sp_Patient_GetAll",
                 commandType: CommandType.StoredProcedure
             ).ToList();
 
-            // SEARCH
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                data = data.Where(x =>
-                    x.DoctorName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    x.PatientName.Contains(search, StringComparison.OrdinalIgnoreCase)
-                ).ToList();
-            }
+            var parameters = new DynamicParameters();
+            parameters.Add("@Search", search);
+            parameters.Add("@DoctorId", doctorId);
+            parameters.Add("@PatientId", patientId);
+            parameters.Add("@FromDate", fromDate);
+            parameters.Add("@ToDate", toDate);
+            parameters.Add("@Status", status);
+            parameters.Add("@Page", page);
+            parameters.Add("@PageSize", pageSize);
 
-            // STATUS FILTER
-            var today = DateTime.Today;
-            data = status switch
-            {
-                "today" => data.Where(x => x.AppointmentDate.Date == today).ToList(),
-                "upcoming" => data.Where(x => x.AppointmentDate.Date > today).ToList(),
-                "completed" => data.Where(x => x.AppointmentDate.Date < today).ToList(),
-                _ => data
-            };
+            using var multi = db.QueryMultiple(
+                "sp_Appointment_GetAll_Filtered",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
 
-            // PAGINATION
-            int totalRecords = data.Count;
+            var data = multi.Read<AppointmentModel>().ToList();
+            int totalRecords = multi.Read<int>().Single();
+
             ViewBag.TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
             ViewBag.CurrentPage = page;
-            ViewBag.Status = status;
-            ViewBag.Search = search;
 
-            data = data
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+            // Keep filters
+            ViewBag.Search = search;
+            ViewBag.DoctorId = doctorId;
+            ViewBag.PatientId = patientId;
+            ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
+            ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
+            ViewBag.Status = status;
 
             return View(data);
         }
+
 
         // ===================== CREATE (GET) =====================
         public IActionResult Create()

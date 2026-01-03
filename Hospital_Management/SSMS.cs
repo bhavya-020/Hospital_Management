@@ -458,3 +458,119 @@
 
 //SELECT COUNT(*) AS TotalRecords FROM Filtered;
 //END;
+
+
+/* 
+
+CREATE PROCEDURE sp_Appointment_Filter
+(
+    @Search     NVARCHAR(100) = NULL,
+    @DoctorId   INT = NULL,
+    @PatientId  INT = NULL,
+    @FromDate   DATE = NULL,
+    @ToDate     DATE = NULL,
+    @Status     NVARCHAR(20) = NULL,
+    @Page       INT = 1,
+    @PageSize   INT = 10
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @Today DATE = CAST(GETDATE() AS DATE);
+
+    SELECT
+        A.AppointmentId,
+        A.DoctorId,
+        D.DoctorName,
+        A.PatientId,
+        P.PatientName,
+        A.AppointmentDate,
+        A.AppointmentTime
+    FROM Appointments A
+    JOIN Doctors D ON A.DoctorId = D.DoctorId
+    JOIN Patients P ON A.PatientId = P.PatientId
+    WHERE
+        -- 🔍 SEARCH
+        (
+            @Search IS NULL OR
+            D.DoctorName LIKE '%' + @Search + '%' OR
+            P.PatientName LIKE '%' + @Search + '%'
+        )
+
+        -- 👨‍⚕️ DOCTOR FILTER
+        AND (@DoctorId IS NULL OR A.DoctorId = @DoctorId)
+
+        -- 🧑 PATIENT FILTER
+        AND (@PatientId IS NULL OR A.PatientId = @PatientId)
+
+        -- 📅 DATE RANGE
+        AND (@FromDate IS NULL OR A.AppointmentDate >= @FromDate)
+        AND (@ToDate IS NULL OR A.AppointmentDate <= @ToDate)
+
+        -- 📌 STATUS FILTER
+        AND (
+            @Status IS NULL OR
+            (@Status = 'today' AND A.AppointmentDate = @Today) OR
+            (@Status = 'upcoming' AND A.AppointmentDate > @Today) OR
+            (@Status = 'completed' AND A.AppointmentDate < @Today)
+        )
+    ORDER BY A.AppointmentDate DESC
+    OFFSET (@Page - 1) * @PageSize ROWS
+    FETCH NEXT @PageSize ROWS ONLY;
+
+    -- 🔢 TOTAL COUNT (for pagination)
+    SELECT COUNT(1)
+    FROM Appointments A
+    JOIN Doctors D ON A.DoctorId = D.DoctorId
+    JOIN Patients P ON A.PatientId = P.PatientId
+    WHERE
+        (
+            @Search IS NULL OR
+            D.DoctorName LIKE '%' + @Search + '%' OR
+            P.PatientName LIKE '%' + @Search + '%'
+        )
+        AND (@DoctorId IS NULL OR A.DoctorId = @DoctorId)
+        AND (@PatientId IS NULL OR A.PatientId = @PatientId)
+        AND (@FromDate IS NULL OR A.AppointmentDate >= @FromDate)
+        AND (@ToDate IS NULL OR A.AppointmentDate <= @ToDate)
+        AND (
+            @Status IS NULL OR
+            (@Status = 'today' AND A.AppointmentDate = @Today) OR
+            (@Status = 'upcoming' AND A.AppointmentDate > @Today) OR
+            (@Status = 'completed' AND A.AppointmentDate < @Today)
+        );
+END
+ 
+
+
+---------------------------------------------------------------------------------------
+
+
+ ALTER PROCEDURE sp_Doctor_GetAll
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT DISTINCT
+        DoctorId,
+        DoctorName
+    FROM Doctors
+    ORDER BY DoctorName;
+END
+
+ALTER PROCEDURE sp_Patient_GetAll
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT DISTINCT
+        PatientId,
+        PatientName
+    FROM Patients
+    ORDER BY PatientName;
+END
+
+
+
+ */

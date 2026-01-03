@@ -1,4 +1,8 @@
-﻿@model IEnumerable<AppointmentModel>
+﻿<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+@model IEnumerable<AppointmentModel>
 
 <h2 class="mb-3">Appointment List</h2>
 
@@ -14,36 +18,63 @@
 }
 else
 {
-    <form method="get"  class="row g-2 mb-3">
-        <div class="col-md-4">
-            <input type="text"
-                   name="search"
-                   value="@ViewBag.Search"
-                   class="form-control"
-                   placeholder="Search Doctor or Patient" />
-        </div>
-
+    <form method="get" class="row g-2 mb-3">
 
         <div class="col-md-3">
-            <select name="status" class="form-select">
-                <option value="">All</option>
-                <option value="today" selected="@(ViewBag.Status == "today")">Today</option>
-                <option value="upcoming" selected="@(ViewBag.Status == "upcoming")">Upcoming</option>
-                <option value="completed" selected="@(ViewBag.Status == "completed")">Completed</option>
+            <input type="text" name="search"
+                   value="@ViewBag.Search"
+                   class="form-control"
+                   placeholder="Search Doctor / Patient" />
+        </div>
+
+        <div class="col-md-2">
+            <select name="doctorId" class="form-select select2">
+                <option value="">All Doctors</option>
+                @foreach (var d in ViewBag.Doctors)
+                {
+                    <option value="@d.DoctorId"
+                            selected="@(ViewBag.DoctorId == d.DoctorId)">
+                        @d.DoctorName
+                    </option>
+                }
             </select>
         </div>
 
         <div class="col-md-2">
+            <select name="patientId" class="form-select select2">
+                <option value="">All Patients</option>
+                @foreach (var p in ViewBag.Patients)
+                {
+                    <option value="@p.PatientId"
+                            selected="@(ViewBag.PatientId == p.PatientId)">
+                        @p.PatientName
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <input type="date" name="fromDate"
+                   value="@ViewBag.FromDate"
+                   class="form-control" />
+        </div>
+
+        <div class="col-md-2">
+            <input type="date" name="toDate"
+                   value="@ViewBag.ToDate"
+                   class="form-control" />
+        </div>
+
+        <div class="col-md-1">
             <button class="btn btn-primary w-100">Filter</button>
         </div>
-        <div class="col-md-2">
-            <a asp-action="Index" class="btn btn-secondary">
-                Clear
-            </a>
+
+        <div class="col-md-1">
+            <a asp-action="Index" class="btn btn-secondary w-100">Clear</a>
         </div>
 
     </form>
-
+ 
     <table class="table table-bordered table-hover align-middle text-center">
         <thead class="table-dark">
             <tr>
@@ -118,17 +149,33 @@ else
 
         </tbody>
     </table>
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2({
+                width: '100%',
+                placeholder: 'Select'
+            });
+        });
+    </script> 
+
     <nav>
     <ul class="pagination justify-content-center">
         @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
         {
             <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
-                <a class="page-link"
-                   href="?page=@i&status=@ViewBag.Status&search=@ViewBag.Search">
-                    @i
-                </a>
+                    <a class="page-link"
+                       href="?page=@i
+           &search=@ViewBag.Search
+           &status=@ViewBag.Status
+           &doctorId=@ViewBag.DoctorId
+           &patientId=@ViewBag.PatientId
+           &fromDate=@ViewBag.FromDate
+           &toDate=@ViewBag.ToDate">
+                        @i
+                    </a>
+
             </li>
-        }
+        } 
     </ul>
 </nav>
 

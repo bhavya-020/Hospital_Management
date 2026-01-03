@@ -21,8 +21,8 @@ namespace Hospital_Management.Models
 
         // For Index (JOIN result)
 
-      
-        public string? DoctorName { get; set; }
-        public string? PatientName { get; set; }
+
+        public string? DoctorName { get; set; } = "";
+        public string? PatientName { get; set; } = "";
     }
 }
