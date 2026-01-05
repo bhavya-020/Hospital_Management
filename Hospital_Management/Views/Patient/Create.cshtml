@@ -33,7 +33,7 @@
 
 <div class="form-group">
     @Html.TextBoxFor(m => m.Contact,
-        new { @class = "form-control", placeholder = "Contact Number" })
+        new { @class = "form-control", type = "number", placeholder = "Enter 10-digit mobile number", maxlength = "10", pattern = "[6-9][0-9]{9}" })
     @Html.ValidationMessageFor(m => m.Contact, "", new { @class = "text-danger" })
 </div>
 

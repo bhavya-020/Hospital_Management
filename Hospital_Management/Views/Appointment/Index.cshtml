@@ -1,8 +1,4 @@
-﻿<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-
-@model IEnumerable<AppointmentModel>
+﻿@model IEnumerable<AppointmentModel>
 
 <h2 class="mb-3">Appointment List</h2>
 
@@ -10,173 +6,121 @@
     + Book Appointment
 </a>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        No appointments found.
+
+<form method="get" class="row g-2 mb-3 align-items-end">
+
+    <div class="col-md-3">
+        <select name="searchType" class="form-select">
+            <option value="">Select Search Type</option>
+            <option value="Doctor" selected="@(ViewBag.SearchType == "Doctor")">Doctor</option>
+            <option value="Patient" selected="@(ViewBag.SearchType == "Patient")">Patient</option>
+        </select>
     </div>
-}
-else
-{
-    <form method="get" class="row g-2 mb-3">
 
-        <div class="col-md-3">
-            <input type="text" name="search"
-                   value="@ViewBag.Search"
-                   class="form-control"
-                   placeholder="Search Doctor / Patient" />
-        </div>
+    <!-- Search Text -->
+    <div class="col-md-3">
+        <input type="text"
+               name="searchText"
+               value="@ViewBag.SearchText"
+               class="form-control"
+               placeholder="Enter name to search" />
+    </div>
 
-        <div class="col-md-2">
-            <select name="doctorId" class="form-select select2">
-                <option value="">All Doctors</option>
-                @foreach (var d in ViewBag.Doctors)
-                {
-                    <option value="@d.DoctorId"
-                            selected="@(ViewBag.DoctorId == d.DoctorId)">
-                        @d.DoctorName
-                    </option>
-                }
-            </select>
-        </div>
+    <div class="col-md-2">
+        <label class="form-label fw-semibold">From</label>
+        <input type="date"
+               name="fromDate"
+               value="@ViewBag.FromDate"
+               class="form-control" />
+    </div>
 
-        <div class="col-md-2">
-            <select name="patientId" class="form-select select2">
-                <option value="">All Patients</option>
-                @foreach (var p in ViewBag.Patients)
-                {
-                    <option value="@p.PatientId"
-                            selected="@(ViewBag.PatientId == p.PatientId)">
-                        @p.PatientName
-                    </option>
-                }
-            </select>
-        </div>
+    <div class="col-md-2">
+        <label class="form-label fw-semibold">To</label>
+        <input type="date"
+               name="toDate"
+               value="@ViewBag.ToDate"
+               class="form-control" />
+    </div>
 
-        <div class="col-md-2">
-            <input type="date" name="fromDate"
-                   value="@ViewBag.FromDate"
-                   class="form-control" />
-        </div>
+    <div class="col-md-1">
+        <button class="btn btn-primary w-100">Filter</button>
+    </div>
 
-        <div class="col-md-2">
-            <input type="date" name="toDate"
-                   value="@ViewBag.ToDate"
-                   class="form-control" />
-        </div>
+    <div class="col-md-1">
+        <a asp-action="Index" class="btn btn-secondary w-100">Clear</a>
+    </div>
 
-        <div class="col-md-1">
-            <button class="btn btn-primary w-100">Filter</button>
-        </div>
+</form>
 
-        <div class="col-md-1">
-            <a asp-action="Index" class="btn btn-secondary w-100">Clear</a>
-        </div>
 
-    </form>
- 
-    <table class="table table-bordered table-hover align-middle text-center">
-        <thead class="table-dark">
+<table class="table table-bordered table-hover text-center align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Doctor</th>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @{
+            int count = 1;
+            var today = DateTime.Today;
+        }
+
+        @foreach (var a in Model)
+        {
+            string status =
+            a.AppointmentDate.Date < today ? "Completed" :
+            a.AppointmentDate.Date == today ? "Today" : "Upcoming";
+
             <tr>
-                <th>#</th>
-                <th>Doctor</th>
-                <th>Patient</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <td>@count</td>
+                <td class="fw-bold">@a.DoctorName</td>
+                <td>@a.PatientName</td>
+                <td>@a.AppointmentDate.ToString("dd MMM yyyy")</td>
+                <td>@a.AppointmentTime.ToString(@"hh\:mm")</td>
+                <td>
+                    <span class="badge bg-dark">@status</span>
+                </td>
+                <td>
+                    <!-- EDIT BUTTON (KEPT) -->
+                    <a asp-action="Edit"
+                       asp-route-id="@a.AppointmentId"
+                       class="btn btn-warning btn-sm me-1">
+                        Edit
+                    </a>
+
+                    <a asp-action="Delete"
+                       asp-route-id="@a.AppointmentId"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Are you sure?');">
+                        Delete
+                    </a>
+                </td>
             </tr>
-        </thead>
 
-        <tbody>
-            @{
-                int count = 1;
-                var today = DateTime.Today;
-                var tomorrow = DateTime.Today.AddDays(1);
-            }
+            count++;
+        }
+    </tbody>
+</table>
 
-            @foreach (var item in Model)
-            {
-                string rowClass = "";
-                string status = "";
-
-                if (item.AppointmentDate.Date < today)
-                {
-                    rowClass = "na";   // past = gray
-                    status = "Completed";
-                }
-                else if (item.AppointmentDate.Date == today)
-                {
-                    rowClass = "na";     // today = yellow
-                    status = "Today";
-                }
-                else if (item.AppointmentDate.Date == tomorrow)
-                {
-                    rowClass = "na";        // tomorrow = blue
-                    status = "Tomorrow";
-                }
-                else
-                {
-                    rowClass = "na";     // future = green
-                    status = "Upcoming";
-                }
-
-                <tr class="@rowClass">
-                    <td>@count</td>
-                    <td class="fw-bold">@item.DoctorName</td>
-                    <td>@item.PatientName</td>
-                    <td>@item.AppointmentDate.ToString("dd MMM yyyy")</td>
-                    <td>@item.AppointmentTime.ToString(@"hh\:mm")</td>
-                    <td>
-                        <span class="badge bg-dark">@status</span>
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.AppointmentId"
-                           class="btn btn-sm btn-warning me-1">
-                            Edit
-                        </a>
-
-                        <a asp-action="Delete" asp-route-id="@item.AppointmentId"
-                           class="btn btn-sm btn-danger"
-                           onclick="return confirm('Are you sure?');">
-                            Delete
-                        </a>
-                    </td>
-                </tr>
-
-                count++;
-            }
-
-        </tbody>
-    </table>
-    <script>
-        $(document).ready(function () {
-            $('.select2').select2({
-                width: '100%',
-                placeholder: 'Select'
-            });
-        });
-    </script> 
-
-    <nav>
+<nav>
     <ul class="pagination justify-content-center">
         @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
         {
+
             <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
-                    <a class="page-link"
-                       href="?page=@i
-           &search=@ViewBag.Search
-           &status=@ViewBag.Status
-           &doctorId=@ViewBag.DoctorId
-           &patientId=@ViewBag.PatientId
-           &fromDate=@ViewBag.FromDate
-           &toDate=@ViewBag.ToDate">
-                        @i
-                    </a>
+                <a class="page-link"
+                   href="?page=@i&searchType=@ViewBag.SearchType&searchText=@ViewBag.SearchText&fromDate=@ViewBag.FromDate&toDate=@ViewBag.ToDate">
+                    @i
+                </a>
 
             </li>
-        } 
+        }
     </ul>
 </nav>
-
-}

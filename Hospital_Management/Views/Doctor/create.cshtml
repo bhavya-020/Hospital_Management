@@ -47,8 +47,8 @@
     </div>
 
     <div class="form-group">
-        @Html.TextBoxFor(x => x.Experience, new { @class = "form-control", placeholder = "Experience" })
-        @Html.ValidationMessageFor(x => x.Experience, "", new { @class = "text-danger" })
+    @Html.TextBoxFor(x => x.Experience, new { @class = "form-control", type = "number", min = "0", max = "70", step = "1", placeholder = "Experience in years" })
+    @Html.ValidationMessageFor(x => x.Experience, "", new { @class = "text-danger" })
     </div>
 
     <br />

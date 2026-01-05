@@ -9,8 +9,9 @@ namespace Hospital_Management.Models
 
         [Required(ErrorMessage = "Patient Name is required")]
         [StringLength(30, ErrorMessage = "Patient Name cannot exceed 30 characters")]
-        [RegularExpression(@"^[A-Za-z ]+$", ErrorMessage = "Doctor Name must contain only alphabets")]
+        [RegularExpression(@"^[A-Za-z ]+$", ErrorMessage = "Patient Name must contain only alphabets")]
         public string PatientName { get; set; }
+
 
         [Required(ErrorMessage = "Age is required")]
         [Range(0, 100, ErrorMessage = "Age must be between 1 and 100")]
@@ -21,6 +22,7 @@ namespace Hospital_Management.Models
         public string Gender { get; set; }
 
 
+        [Range(0, 9999999999, ErrorMessage = "Number must be Digits")]
         [Required(ErrorMessage = "Contact is required")]
         //[StringLength(10, ErrorMessage = "Number must be between 0 and 10")]
         [RegularExpression(@"^[6-9]\d{9}$",

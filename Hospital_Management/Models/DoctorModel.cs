@@ -9,7 +9,7 @@ namespace Hospital_Management.Models
 
         [Required(ErrorMessage = "Doctor Name is required")]
         [StringLength(30, ErrorMessage = "Doctor Name cannot exceed 30 characters")]
-        [RegularExpression(@"^[A-Za-z ]+$", ErrorMessage = "Doctor Name must contain only alphabets")]
+        [RegularExpression(@"^[A-Za-z .]+$", ErrorMessage = "Doctor Name must contain only alphabets")]
 
         public string DoctorName { get; set; }
 
@@ -33,6 +33,7 @@ namespace Hospital_Management.Models
 
         [Required(ErrorMessage = "Experience is required")]
         [Range(0, 70, ErrorMessage = "Experience must be between 0 and 70 years")]
+        //[Phone]
         public int Experience { get; set; }
         public List<SelectListItem>? SpecializationList { get; set; }
 
