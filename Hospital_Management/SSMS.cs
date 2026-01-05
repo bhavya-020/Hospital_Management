@@ -574,3 +574,556 @@ END
 
 
  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////
+
+
+
+//Last
+
+
+
+
+//USE [HospitalDB]
+//GO
+///****** Object:  StoredProcedure [dbo].[sp_Appointment_GetAll_Filtered]    Script Date: 1/5/2026 11:03:15 AM ******/
+//SET ANSI_NULLS ON
+//GO
+//SET QUOTED_IDENTIFIER ON
+//GO
+//ALTER PROCEDURE [dbo].[sp_Appointment_GetAll_Filtered]
+//    @Search VARCHAR(100) = NULL,
+//    @Status  VARCHAR(20)  = NULL,
+//    @Page    INT,
+//    @PageSize INT
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//    DECLARE @Today DATE = CAST(GETDATE() AS DATE);
+    
+//    ;WITH Filtered AS (
+//        SELECT
+//            a.AppointmentId,
+//            a.DoctorId,
+//            d.DoctorName,
+//            a.PatientId,
+//            p.PatientName,
+//            a.AppointmentDate,
+//            a.AppointmentTime
+//        FROM Appointments a
+//        INNER JOIN Doctors d ON a.DoctorId = d.DoctorId
+//        INNER JOIN Patients p ON a.PatientId = p.PatientId
+//        WHERE
+//            (@Search IS NULL
+//             OR d.DoctorName LIKE '%' + @Search + '%'
+//             OR p.PatientName LIKE '%' + @Search + '%')
+//          AND (
+//            @Status IS NULL
+//            OR (@Status = 'today'     AND a.AppointmentDate = @Today)
+//            OR (@Status = 'upcoming'  AND a.AppointmentDate >  @Today)
+//            OR (@Status = 'completed' AND a.AppointmentDate <  @Today)
+//          )
+//    ),
+//    Paged AS (
+//        SELECT *,
+//               ROW_NUMBER() OVER (ORDER BY AppointmentDate, AppointmentTime) AS RowNum
+//        FROM Filtered
+//    )
+//    SELECT
+//        AppointmentId,
+//        DoctorId,
+//        DoctorName,
+//        PatientId,
+//        PatientName,
+//        AppointmentDate,
+//        AppointmentTime
+//    FROM Paged
+//    WHERE RowNum BETWEEN (@Page - 1) * @PageSize + 1 AND @Page * @PageSize;
+
+//    SELECT COUNT(*) AS TotalRecords FROM Filtered;
+//END;
+
+
+
+//////////////////////////////////////////
+
+
+
+//alter PROCEDURE sp_Appointment_GetAll_Filtered
+//(
+//    @Search NVARCHAR(100) = NULL,
+//    @DoctorId INT = NULL,
+//    @PatientId INT = NULL,
+//    @FromDate DATE = NULL,
+//    @ToDate DATE = NULL,
+//    @Status NVARCHAR(50) = NULL,
+//    @Page INT = 1,
+//    @PageSize INT = 10
+//)
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//    ;WITH FilteredData AS
+//    (
+//        SELECT
+//            a.AppointmentId,
+//            a.AppointmentDate,
+//            a.AppointmentTime,
+//            d.DoctorName,
+//            p.PatientName,
+//            ROW_NUMBER() OVER (ORDER BY a.AppointmentDate DESC) AS RowNum
+//        FROM Appointments a
+//        JOIN Doctors d ON a.DoctorId = d.DoctorId
+//        JOIN Patients p ON a.PatientId = p.PatientId
+//        WHERE
+//            (@Search IS NULL OR d.DoctorName LIKE '%' + @Search + '%' OR p.PatientName LIKE '%' + @Search + '%')
+//            AND (@DoctorId IS NULL OR a.DoctorId = @DoctorId)
+//            AND (@PatientId IS NULL OR a.PatientId = @PatientId)
+//            AND (@FromDate IS NULL OR a.AppointmentDate >= @FromDate)
+//            AND (@ToDate IS NULL OR a.AppointmentDate <= @ToDate)
+//    )
+//    SELECT *
+//    FROM FilteredData
+//    WHERE RowNum BETWEEN ((@Page - 1) * @PageSize + 1)
+//                     AND (@Page * @PageSize);
+
+//    -- Total count (SECOND RESULT SET)
+//    SELECT COUNT(*)
+//    FROM Appointments a
+//    WHERE
+//        (@DoctorId IS NULL OR a.DoctorId = @DoctorId)
+//        AND (@PatientId IS NULL OR a.PatientId = @PatientId);
+//END
+
+
+/////////////////////////////////////////////////////////////////
+
+
+//alter PROCEDURE sp_Appointment_GetAll_Filtered
+//(
+//    @DoctorSearch NVARCHAR(100) = NULL,
+//    @PatientSearch NVARCHAR(100) = NULL,
+//    @FromDate DATE = NULL,
+//    @ToDate DATE = NULL,
+//    @Page INT,
+//    @PageSize INT
+//)
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//    SELECT a.AppointmentId,
+//           d.DoctorName,
+//           p.PatientName,
+//           a.AppointmentDate,
+//           a.AppointmentTime
+//    INTO #Temp
+//    FROM Appointments a
+//    JOIN Doctors d ON a.DoctorId = d.DoctorId
+//    JOIN Patients p ON a.PatientId = p.PatientId
+//    WHERE
+//        (@DoctorSearch IS NULL OR d.DoctorName LIKE '%' + @DoctorSearch + '%')
+//        AND (@PatientSearch IS NULL OR p.PatientName LIKE '%' + @PatientSearch + '%')
+//        AND (@FromDate IS NULL OR a.AppointmentDate >= @FromDate)
+//        AND (@ToDate IS NULL OR a.AppointmentDate <= @ToDate);
+
+//    SELECT *
+//    FROM #Temp
+//    ORDER BY AppointmentDate DESC
+//    OFFSET (@Page - 1) * @PageSize ROWS
+//    FETCH NEXT @PageSize ROWS ONLY;
+
+//    SELECT COUNT(*) FROM #Temp;
+//END
+
+////////////////////////////
+//ALTER PROCEDURE sp_Appointment_GetAll_Filtered
+//    @DoctorSearch NVARCHAR(100) = NULL,
+//    @PatientSearch NVARCHAR(100) = NULL,
+//    @FromDate DATE = NULL,
+//    @ToDate DATE = NULL,
+//    @Page INT,
+//    @PageSize INT
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//    SELECT *
+//    FROM Appointments A
+//    JOIN Doctors D ON A.DoctorId = D.DoctorId
+//    JOIN Patients P ON A.PatientId = P.PatientId
+//    WHERE
+//        (@DoctorSearch IS NULL OR D.DoctorName LIKE '%' + @DoctorSearch + '%')
+//        AND (@PatientSearch IS NULL OR P.PatientName LIKE '%' + @PatientSearch + '%')
+//        AND (@FromDate IS NULL OR A.AppointmentDate >= @FromDate)
+//        AND (@ToDate IS NULL OR A.AppointmentDate <= @ToDate)
+//    ORDER BY A.AppointmentDate DESC
+//    OFFSET (@Page - 1) * @PageSize ROWS
+//    FETCH NEXT @PageSize ROWS ONLY;
+
+//    SELECT COUNT(*)
+//    FROM Appointments A
+//    JOIN Doctors D ON A.DoctorId = D.DoctorId
+//    JOIN Patients P ON A.PatientId = P.PatientId
+//    WHERE
+//        (@DoctorSearch IS NULL OR D.DoctorName LIKE '%' + @DoctorSearch + '%')
+//        AND (@PatientSearch IS NULL OR P.PatientName LIKE '%' + @PatientSearch + '%')
+//        AND (@FromDate IS NULL OR A.AppointmentDate >= @FromDate)
+//        AND (@ToDate IS NULL OR A.AppointmentDate <= @ToDate);
+//END
+
+//////////////////////////////////////
+
+//alter PROCEDURE sp_Appointment_GetAll_Filtered
+//(
+//    @SearchType NVARCHAR(20) = NULL,   -- 'Doctor' or 'Patient'
+//    @SearchText NVARCHAR(100) = NULL,  -- Search value
+//    @FromDate DATE = NULL,
+//    @ToDate DATE = NULL,
+//    @Page INT = 1,
+//    @PageSize INT = 10
+//)
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//    DECLARE @Offset INT;
+//    SET @Offset = (@Page - 1) * @PageSize;
+
+//    -----------------------------------
+//    -- MAIN DATA QUERY
+//    -----------------------------------
+//    SELECT
+//        a.AppointmentId,
+//        a.AppointmentDate,
+//        a.AppointmentTime,
+//        d.DoctorName,
+//        p.PatientName
+//    FROM Appointments a
+//    INNER JOIN Doctors d ON a.DoctorId = d.DoctorId
+//    INNER JOIN Patients p ON a.PatientId = p.PatientId
+//    WHERE
+//        (
+//            @SearchText IS NULL OR @SearchText = ''
+//            OR
+//            (
+//                @SearchType = 'Doctor'
+//                AND d.DoctorName LIKE '%' + @SearchText + '%'
+//            )
+//            OR
+//            (
+//                @SearchType = 'Patient'
+//                AND p.PatientName LIKE '%' + @SearchText + '%'
+//            )
+//        )
+//        AND (@FromDate IS NULL OR a.AppointmentDate >= @FromDate)
+//        AND (@ToDate IS NULL OR a.AppointmentDate <= @ToDate)
+//    ORDER BY a.AppointmentDate DESC
+//    OFFSET @Offset ROWS
+//    FETCH NEXT @PageSize ROWS ONLY;
+
+//    -----------------------------------
+//    -- TOTAL COUNT (FOR PAGINATION)
+//    -----------------------------------
+//    SELECT COUNT(1)
+//    FROM Appointments a
+//    INNER JOIN Doctors d ON a.DoctorId = d.DoctorId
+//    INNER JOIN Patients p ON a.PatientId = p.PatientId
+//    WHERE
+//        (
+//            @SearchText IS NULL OR @SearchText = ''
+//            OR
+//            (
+//                @SearchType = 'Doctor'
+//                AND d.DoctorName LIKE '%' + @SearchText + '%'
+//            )
+//            OR
+//            (
+//                @SearchType = 'Patient'
+//                AND p.PatientName LIKE '%' + @SearchText + '%'
+//            )
+//        )
+//        AND (@FromDate IS NULL OR a.AppointmentDate >= @FromDate)
+//        AND (@ToDate IS NULL OR a.AppointmentDate <= @ToDate);
+//END
+//GO
+//USE [HospitalDB]
+//GO
+///****** Object:  StoredProcedure [dbo].[sp_Appointment_GetAll_Filtered]    Script Date: 1/5/2026 11:03:15 AM ******/
+//SET ANSI_NULLS ON
+//GO
+//SET QUOTED_IDENTIFIER ON
+//GO
+//ALTER PROCEDURE [dbo].[sp_Appointment_GetAll_Filtered]
+//    @Search VARCHAR(100) = NULL,
+//    @Status  VARCHAR(20)  = NULL,
+//    @Page    INT,
+//    @PageSize INT
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//    DECLARE @Today DATE = CAST(GETDATE() AS DATE);
+    
+//    ;WITH Filtered AS (
+//        SELECT
+//            a.AppointmentId,
+//            a.DoctorId,
+//            d.DoctorName,
+//            a.PatientId,
+//            p.PatientName,
+//            a.AppointmentDate,
+//            a.AppointmentTime
+//        FROM Appointments a
+//        INNER JOIN Doctors d ON a.DoctorId = d.DoctorId
+//        INNER JOIN Patients p ON a.PatientId = p.PatientId
+//        WHERE
+//            (@Search IS NULL
+//             OR d.DoctorName LIKE '%' + @Search + '%'
+//             OR p.PatientName LIKE '%' + @Search + '%')
+//          AND (
+//            @Status IS NULL
+//            OR (@Status = 'today'     AND a.AppointmentDate = @Today)
+//            OR (@Status = 'upcoming'  AND a.AppointmentDate >  @Today)
+//            OR (@Status = 'completed' AND a.AppointmentDate <  @Today)
+//          )
+//    ),
+//    Paged AS (
+//        SELECT *,
+//               ROW_NUMBER() OVER (ORDER BY AppointmentDate, AppointmentTime) AS RowNum
+//        FROM Filtered
+//    )
+//    SELECT
+//        AppointmentId,
+//        DoctorId,
+//        DoctorName,
+//        PatientId,
+//        PatientName,
+//        AppointmentDate,
+//        AppointmentTime
+//    FROM Paged
+//    WHERE RowNum BETWEEN (@Page - 1) * @PageSize + 1 AND @Page * @PageSize;
+
+//    SELECT COUNT(*) AS TotalRecords FROM Filtered;
+//END;
+
+
+
+//////////////////////////////////////////
+
+
+
+//alter PROCEDURE sp_Appointment_GetAll_Filtered
+//(
+//    @Search NVARCHAR(100) = NULL,
+//    @DoctorId INT = NULL,
+//    @PatientId INT = NULL,
+//    @FromDate DATE = NULL,
+//    @ToDate DATE = NULL,
+//    @Status NVARCHAR(50) = NULL,
+//    @Page INT = 1,
+//    @PageSize INT = 10
+//)
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//    ;WITH FilteredData AS
+//    (
+//        SELECT
+//            a.AppointmentId,
+//            a.AppointmentDate,
+//            a.AppointmentTime,
+//            d.DoctorName,
+//            p.PatientName,
+//            ROW_NUMBER() OVER (ORDER BY a.AppointmentDate DESC) AS RowNum
+//        FROM Appointments a
+//        JOIN Doctors d ON a.DoctorId = d.DoctorId
+//        JOIN Patients p ON a.PatientId = p.PatientId
+//        WHERE
+//            (@Search IS NULL OR d.DoctorName LIKE '%' + @Search + '%' OR p.PatientName LIKE '%' + @Search + '%')
+//            AND (@DoctorId IS NULL OR a.DoctorId = @DoctorId)
+//            AND (@PatientId IS NULL OR a.PatientId = @PatientId)
+//            AND (@FromDate IS NULL OR a.AppointmentDate >= @FromDate)
+//            AND (@ToDate IS NULL OR a.AppointmentDate <= @ToDate)
+//    )
+//    SELECT *
+//    FROM FilteredData
+//    WHERE RowNum BETWEEN ((@Page - 1) * @PageSize + 1)
+//                     AND (@Page * @PageSize);
+
+//    -- Total count (SECOND RESULT SET)
+//    SELECT COUNT(*)
+//    FROM Appointments a
+//    WHERE
+//        (@DoctorId IS NULL OR a.DoctorId = @DoctorId)
+//        AND (@PatientId IS NULL OR a.PatientId = @PatientId);
+//END
+
+
+/////////////////////////////////////////////////////////////////
+
+
+//alter PROCEDURE sp_Appointment_GetAll_Filtered
+//(
+//    @DoctorSearch NVARCHAR(100) = NULL,
+//    @PatientSearch NVARCHAR(100) = NULL,
+//    @FromDate DATE = NULL,
+//    @ToDate DATE = NULL,
+//    @Page INT,
+//    @PageSize INT
+//)
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//    SELECT a.AppointmentId,
+//           d.DoctorName,
+//           p.PatientName,
+//           a.AppointmentDate,
+//           a.AppointmentTime
+//    INTO #Temp
+//    FROM Appointments a
+//    JOIN Doctors d ON a.DoctorId = d.DoctorId
+//    JOIN Patients p ON a.PatientId = p.PatientId
+//    WHERE
+//        (@DoctorSearch IS NULL OR d.DoctorName LIKE '%' + @DoctorSearch + '%')
+//        AND (@PatientSearch IS NULL OR p.PatientName LIKE '%' + @PatientSearch + '%')
+//        AND (@FromDate IS NULL OR a.AppointmentDate >= @FromDate)
+//        AND (@ToDate IS NULL OR a.AppointmentDate <= @ToDate);
+
+//    SELECT *
+//    FROM #Temp
+//    ORDER BY AppointmentDate DESC
+//    OFFSET (@Page - 1) * @PageSize ROWS
+//    FETCH NEXT @PageSize ROWS ONLY;
+
+//    SELECT COUNT(*) FROM #Temp;
+//END
+
+////////////////////////////
+//ALTER PROCEDURE sp_Appointment_GetAll_Filtered
+//    @DoctorSearch NVARCHAR(100) = NULL,
+//    @PatientSearch NVARCHAR(100) = NULL,
+//    @FromDate DATE = NULL,
+//    @ToDate DATE = NULL,
+//    @Page INT,
+//    @PageSize INT
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//    SELECT *
+//    FROM Appointments A
+//    JOIN Doctors D ON A.DoctorId = D.DoctorId
+//    JOIN Patients P ON A.PatientId = P.PatientId
+//    WHERE
+//        (@DoctorSearch IS NULL OR D.DoctorName LIKE '%' + @DoctorSearch + '%')
+//        AND (@PatientSearch IS NULL OR P.PatientName LIKE '%' + @PatientSearch + '%')
+//        AND (@FromDate IS NULL OR A.AppointmentDate >= @FromDate)
+//        AND (@ToDate IS NULL OR A.AppointmentDate <= @ToDate)
+//    ORDER BY A.AppointmentDate DESC
+//    OFFSET (@Page - 1) * @PageSize ROWS
+//    FETCH NEXT @PageSize ROWS ONLY;
+
+//    SELECT COUNT(*)
+//    FROM Appointments A
+//    JOIN Doctors D ON A.DoctorId = D.DoctorId
+//    JOIN Patients P ON A.PatientId = P.PatientId
+//    WHERE
+//        (@DoctorSearch IS NULL OR D.DoctorName LIKE '%' + @DoctorSearch + '%')
+//        AND (@PatientSearch IS NULL OR P.PatientName LIKE '%' + @PatientSearch + '%')
+//        AND (@FromDate IS NULL OR A.AppointmentDate >= @FromDate)
+//        AND (@ToDate IS NULL OR A.AppointmentDate <= @ToDate);
+//END
+
+//////////////////////////////////////
+
+//alter PROCEDURE sp_Appointment_GetAll_Filtered
+//(
+//    @SearchType NVARCHAR(20) = NULL,   -- 'Doctor' or 'Patient'
+//    @SearchText NVARCHAR(100) = NULL,  -- Search value
+//    @FromDate DATE = NULL,
+//    @ToDate DATE = NULL,
+//    @Page INT = 1,
+//    @PageSize INT = 10
+//)
+//AS
+//BEGIN
+//    SET NOCOUNT ON;
+
+//    DECLARE @Offset INT;
+//    SET @Offset = (@Page - 1) * @PageSize;
+
+//    -----------------------------------
+//    -- MAIN DATA QUERY
+//    -----------------------------------
+//    SELECT
+//        a.AppointmentId,
+//        a.AppointmentDate,
+//        a.AppointmentTime,
+//        d.DoctorName,
+//        p.PatientName
+//    FROM Appointments a
+//    INNER JOIN Doctors d ON a.DoctorId = d.DoctorId
+//    INNER JOIN Patients p ON a.PatientId = p.PatientId
+//    WHERE
+//        (
+//            @SearchText IS NULL OR @SearchText = ''
+//            OR
+//            (
+//                @SearchType = 'Doctor'
+//                AND d.DoctorName LIKE '%' + @SearchText + '%'
+//            )
+//            OR
+//            (
+//                @SearchType = 'Patient'
+//                AND p.PatientName LIKE '%' + @SearchText + '%'
+//            )
+//        )
+//        AND (@FromDate IS NULL OR a.AppointmentDate >= @FromDate)
+//        AND (@ToDate IS NULL OR a.AppointmentDate <= @ToDate)
+//    ORDER BY a.AppointmentDate DESC
+//    OFFSET @Offset ROWS
+//    FETCH NEXT @PageSize ROWS ONLY;
+
+//    -----------------------------------
+//    -- TOTAL COUNT (FOR PAGINATION)
+//    -----------------------------------
+//    SELECT COUNT(1)
+//    FROM Appointments a
+//    INNER JOIN Doctors d ON a.DoctorId = d.DoctorId
+//    INNER JOIN Patients p ON a.PatientId = p.PatientId
+//    WHERE
+//        (
+//            @SearchText IS NULL OR @SearchText = ''
+//            OR
+//            (
+//                @SearchType = 'Doctor'
+//                AND d.DoctorName LIKE '%' + @SearchText + '%'
+//            )
+//            OR
+//            (
+//                @SearchType = 'Patient'
+//                AND p.PatientName LIKE '%' + @SearchText + '%'
+//            )
+//        )
+//        AND (@FromDate IS NULL OR a.AppointmentDate >= @FromDate)
+//        AND (@ToDate IS NULL OR a.AppointmentDate <= @ToDate);
+//END
+//GO
